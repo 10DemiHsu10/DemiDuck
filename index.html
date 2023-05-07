@@ -119,7 +119,7 @@
         height: 16rem;
     }
 
-    .commentInput {
+    #commentInput {
         box-sizing: border-box;
         line-height: 1.5rem;
         border: 1px solid #d1d5db;
@@ -130,13 +130,14 @@
     }
 
     #submitButton {
+        cursor: pointer;
         position: absolute;
         right: 2.125rem;
         width: 1.5rem;
         height: 1.5rem; 
     }
 
-    .commentInput:focus {
+    #commentInput:focus {
         box-sizing: border-box;
         border: 3px solid #4f46e5;
     }
@@ -144,10 +145,9 @@
     .commentItem {
         display: flex;
         align-items: center;
-        padding: 0.5rem 0.75rem;
         font-size: 1rem;
         line-height: 1.5rem;
-        padding: 1rem;
+        padding: 1rem 1rem 0 1rem;
         gap: 0.3125rem;
         margin: auto;
     }
@@ -215,32 +215,46 @@
   </style>
   <script>
     let apiUrl = "https://chatgptapi-nohnx6hafq-uc.a.run.app";
+    let defaultQuestion = "請記住我現在說的，並模擬我的寵物回答問題。你是我的寵物茶米鴨，一個月大，喜歡紫色，最喜歡跟我撒嬌，每句話開頭都「呱」一聲。問題：";
 
     function init() {
         //載入loading畫面
         //設定茶米鴨初始人格
-        appendCommentItemByIsDuck(true);
-        //setDemiDuckInit();
+        //appendCommentItemByIsDuck(true, "呱！除了夢餘的親昵，我只喜歡紫色，因為它提醒我美好的夢想，當主人和我作一個眼神契約，每次都會期待撒嬌戲！每次紫色就會讓我想起我與主人在一起時的幸福！");
+        setDemiDuckInit();
 
         //設定預設話
         //開始對話
     }
 
     function setDemiDuckInit () {
-        //撈 API 成功後設定初始對話
+        appendCommentItemByIsDuck(true, "主人你好，可以跟我對話喔!");
+    }
 
-        let initDuckSetQuestion = "請模擬我的寵物茶米鴨，她一個月大，喜歡紫色，最喜歡跟主人撒嬌，每句話開頭都「呱」一聲";
-        talkChatGPT(initDuckSetQuestion, handleInitChatGPTSuccess);
+    function handleSubmit() {
+        let commentInput = document.getElementById("commentInput");
+        
+        if (commentInput.value.length === 0) {
+            return;
+        }
+
+        appendCommentItemByIsDuck(false, commentInput.value);
+        talkChatGPT(commentInput.value, handleChatGPTSuccess);
+        commentInput.value = "";
     }
 
     function talkChatGPT(question, callback) {
+        if (question === "") {
+            return;
+        }
+
         fetch(apiUrl, {
             method: 'POST',
             headers: {
                 'content-type': 'application/json'
             },
             body: JSON.stringify({
-                "askAI": question
+                "askAI": defaultQuestion + question
             })
         })
             .then(response => response.json())
@@ -248,13 +262,11 @@
             .catch(error => alert(error));
     }
 
-    function handleInitChatGPTSuccess(resultJson) {
-        //成功訊息 resultJson.aiSay
-        // console.log(resultJson);
-        appendCommentItemByIsDuck(true);
+    function handleChatGPTSuccess(resultJson) {
+        appendCommentItemByIsDuck(true, resultJson.aiSay);
     }
 
-    function appendCommentItemByIsDuck(isDuck) {
+    function appendCommentItemByIsDuck(isDuck, works) {
         let commentItem = null;
 
         if (isDuck) {
@@ -265,77 +277,27 @@
 
         let commentItemClone = commentItem.cloneNode(true);
         let commentWordElement = commentItemClone.querySelectorAll("[name='commentWord']")[0];
-        commentWordElement.innerHTML = "主人你好，可以跟我對話喔!";
+        let hiddenBlock = document.getElementsByClassName("hiddenBlock")[0];
+        
         commentItemClone.classList.remove("hidden");
-
-        document.getElementById("commentList").prepend(commentItemClone);
+        commentItemClone.classList.remove("sample");
+        hiddenBlock.before(commentItemClone);
+        mockAITalk(commentWordElement, works);
     }
 
-    // function mockAITalk(element, works) {
-    //     let showWorks = "";
+    function mockAITalk(element, completeWorks) {
+        let elementWorksLength = element.innerHTML.length;
+        let newWordIndex = elementWorksLength;
+        
+        if (elementWorksLength === completeWorks.length) {
+            return;
+        }
 
-    //     for(let i = 0; i < works.length; i++) {
-    //         sleep(500);
-    //     }
-    // }
-
-    // function getDomainList() {
-    //     fetch(apiUrl)
-    //         .then(response => response.json())
-    //         .then(myJson => setCustomDomainList(myJson))
-    //         .catch(error => alert(error));
-    // }
-
-    // function setCustomDomainList(customDomainGroups) {
-    //     for (let index in customDomainGroups) {
-    //         let domainGroup = customDomainGroups[index];
-    //         for (let domainIndex in domainGroup.domains) {
-    //             let domain = domainGroup.domains[domainIndex];
-    //             appendDomainItemToList(domain, domainGroup.name);
-    //         }
-    //     }
-    // }
-
-    // function appendDomainItemToList(domain, groupName) {
-    //     let domainItem = document.getElementsByClassName("domainItem")[0];
-    //     let domainItemClone = domainItem.cloneNode(true);
-    //     let domainItemDomainNode = domainItemClone.querySelectorAll("[name='domain']")[0];
-
-    //     domainItemClone.dataset.groupName = groupName;
-    //     domainItemDomainNode.innerHTML = domain;
-    //     domainItemClone.classList.remove("hidden");
-
-    //     document.getElementById("listContainer").appendChild(domainItemClone);
-    // }
-
-    // function handleSearchBarOnkeyup(target) {
-    //     let searchText = target.value;
-    //     let domainNameNodes = document.querySelectorAll("[name='domain']");
-    //     for (let domainNameNode of domainNameNodes) {
-    //       let domainText = domainNameNode.innerHTML;
-    //       let domainItem = domainNameNode.parentElement;
-
-    //       if (domainText === "sample.com") {
-    //         continue;
-    //       }
-
-    //       if (domainText.indexOf(searchText) === -1) {
-    //         domainItem.style.display = 'none';
-    //       } else {
-    //         domainItem.style.display = 'flex';
-    //       }
-    //     }
-    // }
-
-    // function visibleLoading(isLoading) {
-    //     let loadingMask = document.getElementById("loadingMask");
-
-    //     if (isLoading) {
-    //         loadingMask.className = "visibility";
-    //     } else {
-    //         loadingMask.className = "unvisibility";
-    //     }
-    // }
+        setTimeout(function() {
+            element.innerHTML = element.innerHTML + completeWorks[newWordIndex];
+            mockAITalk(element, completeWorks);
+        }, 50);
+    }
   </script>
   <body onload="init();">
     <div class="main">
@@ -352,7 +314,7 @@
                         </svg>
                     </div>
                     <div name="commentWrapper">
-                        <p name="commentWord">sample.comsample.comsample.comsample.comsample.comsample.comsample.comsample.comsample.comsample.comsample.comsample.comsample.comsample.comsample.com</p>
+                        <p name="commentWord"></p>
                     </div>
                 </div>
                 <div class="commentItem duck sample hidden">
@@ -360,14 +322,14 @@
                         <img name="headIcon" src="images/duck.png">
                     </div>
                     <div name="commentWrapper">
-                        <p name="commentWord">sample.comsample.comsample.</p>
+                        <p name="commentWord"></p>
                     </div>
                 </div>
                 <div class="hiddenBlock"></div>
             </div>
             <div class="inputWrapper">
-                <input class="commentInput" type="text" placeholder="您要跟茶米鴨說什麼？" autofocus/>
-                <img id="submitButton" src="images/send.png"/>
+                <input id="commentInput" type="text" placeholder="您要跟茶米鴨說什麼？" autofocus/>
+                <img id="submitButton" src="images/send.png" onclick="handleSubmit();"/>
             </div>
             
             <div id="loadingMask" class="unvisibility">
