@@ -2,9 +2,381 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>DemiDuck 1.0.0</title>
+    <title>My test page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
   </head>
-  <body>
-    DemiDuck
+  <style>
+    /* 預設根元素 16px */
+    body, html {
+        height: 100%;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        display: flex;
+        justify-content: center;
+    }
+
+    input {
+        font-family: inherit;
+        font-size: 100%;
+        font-weight: inherit;
+        line-height: inherit;
+        color: inherit;
+        margin: 0;
+        padding: 0;
+    }
+
+    .main {
+        display: flex;
+        /* flex-wrap: wrap; */
+        width: 100%;
+        height: 100%;
+        color: #111827;
+        font-size: 0.875rem;
+        overflow: hidden;
+    }
+
+    @media screen and (min-width: 768px) {
+
+        .main {
+            width: 31.25rem;
+            height: 80vh;
+            padding: 3.5rem;
+        }
+
+    }
+
+    #wrapper {
+        height: 100%;
+        width: 100%;
+        display: flex;
+        position: relative;
+        flex-direction: column;
+        flex: 1 1 auto;
+        box-sizing: border-box;
+        border: 1px solid #d1d5db;
+        line-height: 1.25rem;
+        background-color: #f0f0f0;
+    }
+
+    @media screen and (min-width: 768px) {
+
+        #wrapper {
+            border-radius: 0.375rem;
+        }
+
+    }
+
+    #wrapper > .title {
+        position: sticky;
+        z-index: 10;
+        top: 0;
+        line-height: 2.437;
+        padding: 0 3rem;
+        font-size: 1.125rem;
+        text-align: center;
+        color: #878994;
+    }
+
+    #wrapper > .content {
+        flex: 1 1 auto;
+        width: 100%;
+        height: 100%;
+        position: relative;
+        overflow-y: auto;
+    }
+
+    #wrapper > .content > .hiddenBlock {
+        width: 100%;
+        height: 8rem;
+    }
+
+    #wrapper > .inputWrapper {
+        width: 100%;
+        left: 0;
+        bottom: 0;
+        position: absolute;
+        padding: 1.25rem 1rem;
+        box-sizing: border-box;
+        background-color: #f0f0f0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .animationBlock {
+        background-color: #98c0da;
+        height: 18.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .animationBlock > img {
+        height: 16rem;
+    }
+
+    .commentInput {
+        box-sizing: border-box;
+        line-height: 1.5rem;
+        border: 1px solid #d1d5db;
+        width: 100%;
+        padding: 0.375rem 3rem 0.375rem 0.75rem;
+        font-size: inherit;
+        border-radius: 0.375rem;
+    }
+
+    #submitButton {
+        position: absolute;
+        right: 2.125rem;
+        width: 1.5rem;
+        height: 1.5rem; 
+    }
+
+    .commentInput:focus {
+        box-sizing: border-box;
+        border: 3px solid #4f46e5;
+    }
+
+    .commentItem {
+        display: flex;
+        align-items: center;
+        padding: 0.5rem 0.75rem;
+        font-size: 1rem;
+        line-height: 1.5rem;
+        padding: 1rem;
+        gap: 0.3125rem;
+        margin: auto;
+    }
+
+    .commentItem.hidden {
+        display: none;
+    }
+
+    .commentItem > .headIconBlock {
+        align-items: flex-end;
+        flex-direction: column;
+        flex-shrink: 0;
+        display: flex;
+    } 
+
+    [name="headIcon"] {
+        width: 1.5rem;
+        height: 1.5rem;
+        color: #4f46e5;
+        margin-right: 0.3125rem;
+    }
+
+    [name="commentWrapper"] {
+        width: calc(100% - 50px);
+        position: relative;
+        box-sizing: border-box;
+        flex: 1 1 auto;
+        word-wrap: break-word; 
+    }
+
+    #loadingMask {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        border-radius: inherit;
+    }
+
+    #loadingMask.visibility {
+        visibility: visible;
+    }
+
+    #loadingMask.unvisibility {
+        visibility: hidden;
+    }
+
+    #loadingMask > .loadingIcon {
+        color: rgb(75 85 99);
+        fill: #d1d5db;
+        animation: loadingIcon 1s linear infinite;
+        width: 2rem;
+        height: 2rem;
+    }
+
+    @keyframes loadingIcon {
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+  </style>
+  <script>
+    let apiUrl = "https://chatgptapi-nohnx6hafq-uc.a.run.app";
+
+    function init() {
+        //載入loading畫面
+        //設定茶米鴨初始人格
+        appendCommentItemByIsDuck(true);
+        //setDemiDuckInit();
+
+        //設定預設話
+        //開始對話
+    }
+
+    function setDemiDuckInit () {
+        //撈 API 成功後設定初始對話
+
+        let initDuckSetQuestion = "請模擬我的寵物茶米鴨，她一個月大，喜歡紫色，最喜歡跟主人撒嬌，每句話開頭都「呱」一聲";
+        talkChatGPT(initDuckSetQuestion, handleInitChatGPTSuccess);
+    }
+
+    function talkChatGPT(question, callback) {
+        fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'content-type': 'application/json'
+            },
+            body: JSON.stringify({
+                "askAI": question
+            })
+        })
+            .then(response => response.json())
+            .then(myJson => callback(myJson))
+            .catch(error => alert(error));
+    }
+
+    function handleInitChatGPTSuccess(resultJson) {
+        //成功訊息 resultJson.aiSay
+        // console.log(resultJson);
+        appendCommentItemByIsDuck(true);
+    }
+
+    function appendCommentItemByIsDuck(isDuck) {
+        let commentItem = null;
+
+        if (isDuck) {
+            commentItem = document.getElementsByClassName("commentItem duck sample")[0];
+        } else {
+            commentItem = document.getElementsByClassName("commentItem master sample")[0];
+        }
+
+        let commentItemClone = commentItem.cloneNode(true);
+        let commentWordElement = commentItemClone.querySelectorAll("[name='commentWord']")[0];
+        commentWordElement.innerHTML = "主人你好，可以跟我對話喔!";
+        commentItemClone.classList.remove("hidden");
+
+        document.getElementById("commentList").prepend(commentItemClone);
+    }
+
+    // function mockAITalk(element, works) {
+    //     let showWorks = "";
+
+    //     for(let i = 0; i < works.length; i++) {
+    //         sleep(500);
+    //     }
+    // }
+
+    // function getDomainList() {
+    //     fetch(apiUrl)
+    //         .then(response => response.json())
+    //         .then(myJson => setCustomDomainList(myJson))
+    //         .catch(error => alert(error));
+    // }
+
+    // function setCustomDomainList(customDomainGroups) {
+    //     for (let index in customDomainGroups) {
+    //         let domainGroup = customDomainGroups[index];
+    //         for (let domainIndex in domainGroup.domains) {
+    //             let domain = domainGroup.domains[domainIndex];
+    //             appendDomainItemToList(domain, domainGroup.name);
+    //         }
+    //     }
+    // }
+
+    // function appendDomainItemToList(domain, groupName) {
+    //     let domainItem = document.getElementsByClassName("domainItem")[0];
+    //     let domainItemClone = domainItem.cloneNode(true);
+    //     let domainItemDomainNode = domainItemClone.querySelectorAll("[name='domain']")[0];
+
+    //     domainItemClone.dataset.groupName = groupName;
+    //     domainItemDomainNode.innerHTML = domain;
+    //     domainItemClone.classList.remove("hidden");
+
+    //     document.getElementById("listContainer").appendChild(domainItemClone);
+    // }
+
+    // function handleSearchBarOnkeyup(target) {
+    //     let searchText = target.value;
+    //     let domainNameNodes = document.querySelectorAll("[name='domain']");
+    //     for (let domainNameNode of domainNameNodes) {
+    //       let domainText = domainNameNode.innerHTML;
+    //       let domainItem = domainNameNode.parentElement;
+
+    //       if (domainText === "sample.com") {
+    //         continue;
+    //       }
+
+    //       if (domainText.indexOf(searchText) === -1) {
+    //         domainItem.style.display = 'none';
+    //       } else {
+    //         domainItem.style.display = 'flex';
+    //       }
+    //     }
+    // }
+
+    // function visibleLoading(isLoading) {
+    //     let loadingMask = document.getElementById("loadingMask");
+
+    //     if (isLoading) {
+    //         loadingMask.className = "visibility";
+    //     } else {
+    //         loadingMask.className = "unvisibility";
+    //     }
+    // }
+  </script>
+  <body onload="init();">
+    <div class="main">
+        <div id="wrapper">
+            <div class="title">茶米鴨</div>
+            <div class="animationBlock">
+                <img src="images/animation/duck.png">
+            </div>
+            <div class="content" id="commentList">
+                <div class="commentItem master sample hidden">
+                    <div class="headIconBlock">
+                        <svg name="headIcon" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"></path>
+                        </svg>
+                    </div>
+                    <div name="commentWrapper">
+                        <p name="commentWord">sample.comsample.comsample.comsample.comsample.comsample.comsample.comsample.comsample.comsample.comsample.comsample.comsample.comsample.comsample.com</p>
+                    </div>
+                </div>
+                <div class="commentItem duck sample hidden">
+                    <div class="headIconBlock">
+                        <img name="headIcon" src="images/duck.png">
+                    </div>
+                    <div name="commentWrapper">
+                        <p name="commentWord">sample.comsample.comsample.</p>
+                    </div>
+                </div>
+                <div class="hiddenBlock"></div>
+            </div>
+            <div class="inputWrapper">
+                <input class="commentInput" type="text" placeholder="您要跟茶米鴨說什麼？" autofocus/>
+                <img id="submitButton" src="images/send.png"/>
+            </div>
+            
+            <div id="loadingMask" class="unvisibility">
+                <svg class="loadingIcon" viewBox="0 0 100 101">
+                    <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
+                    <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
+                </svg>
+            </div>
+        </div>
+    </div>
   </body>
 </html>
