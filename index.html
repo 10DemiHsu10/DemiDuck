@@ -187,7 +187,7 @@
         right: 0;
         bottom: 0;
         left: 0;
-        background-color: rgba(0, 0, 0, 0.5);
+        background-color: rgba(255, 255, 255, 0.8);
         border-radius: inherit;
     }
 
@@ -216,22 +216,26 @@
   <script>
     let apiUrl = "https://chatgptapi-nohnx6hafq-uc.a.run.app";
     let defaultQuestion = "請記住我現在說的，並模擬我的寵物回答問題。你是我的寵物茶米鴨，一個月大，喜歡紫色，最喜歡跟我撒嬌，每句話開頭都「呱」一聲。問題：";
+    let isTalking = false;
 
     function init() {
-        //載入loading畫面
-        //設定茶米鴨初始人格
-        //appendCommentItemByIsDuck(true, "呱！除了夢餘的親昵，我只喜歡紫色，因為它提醒我美好的夢想，當主人和我作一個眼神契約，每次都會期待撒嬌戲！每次紫色就會讓我想起我與主人在一起時的幸福！");
-        setDemiDuckInit();
+        fakeLoading();
+    }
 
-        //設定預設話
-        //開始對話
+    function fakeLoading() {
+        visibleLoading(true);
+
+        setTimeout(function() {
+            visibleLoading(false);
+            setDemiDuckInit();
+        }, 2000);
     }
 
     function setDemiDuckInit () {
         appendCommentItemByIsDuck(true, "主人你好，可以跟我對話喔!");
     }
 
-    function handleSubmit() {
+    async function handleSubmit() {
         let commentInput = document.getElementById("commentInput");
         
         if (commentInput.value.length === 0) {
@@ -239,16 +243,14 @@
         }
 
         appendCommentItemByIsDuck(false, commentInput.value);
-        talkChatGPT(commentInput.value, handleChatGPTSuccess);
+        visibledTalkingItem(true);
+        await talkChatGPT(commentInput.value, handleChatGPTSuccess);
+        visibledTalkingItem(false);
         commentInput.value = "";
     }
 
     function talkChatGPT(question, callback) {
-        if (question === "") {
-            return;
-        }
-
-        fetch(apiUrl, {
+        return fetch(apiUrl, {
             method: 'POST',
             headers: {
                 'content-type': 'application/json'
@@ -298,6 +300,55 @@
             mockAITalk(element, completeWorks);
         }, 50);
     }
+
+    function visibledTalkingItem(isVisible) {
+        if (isVisible) {
+            let talkingItem = document.getElementsByClassName("commentItem duck talking")[0];
+            let talkingItemClone = talkingItem.cloneNode(true);
+            let wordElement = talkingItemClone.querySelectorAll("[name='commentWord']")[0];
+            let hiddenBlock = document.getElementsByClassName("hiddenBlock")[0];
+
+            isTalking = true;
+            talkingItemClone.classList.remove("hidden");
+            hiddenBlock.before(talkingItemClone);
+            lodingItemByIsTalking(wordElement);
+            return;
+        }
+
+        let talkingItems = document.getElementsByClassName("commentItem duck talking");
+        let lastTalkingItem = talkingItems[talkingItems.length - 1];
+        
+        lastTalkingItem.remove();
+        isTalking = false;
+    }
+
+    function lodingItemByIsTalking(wordElement) {       
+        if ( ! isTalking) {
+            return;
+        }
+
+        if (wordElement.innerHTML.length === 3) {
+            wordElement.innerHTML = "";
+        }
+
+        if (wordElement.innerHTML.length < 3) {
+            wordElement.innerHTML += ".";
+        }
+
+        setTimeout(function() {
+            lodingItemByIsTalking(wordElement);
+        }, 500);
+    }
+
+    function visibleLoading(isLoading) {
+        let loadingMask = document.getElementById("loadingMask");
+
+        if (isLoading) {
+            loadingMask.className = "visibility";
+        } else {
+            loadingMask.className = "unvisibility";
+        }
+    }
   </script>
   <body onload="init();">
     <div class="main">
@@ -318,6 +369,14 @@
                     </div>
                 </div>
                 <div class="commentItem duck sample hidden">
+                    <div class="headIconBlock">
+                        <img name="headIcon" src="images/duck.png">
+                    </div>
+                    <div name="commentWrapper">
+                        <p name="commentWord"></p>
+                    </div>
+                </div>
+                <div class="commentItem duck talking hidden">
                     <div class="headIconBlock">
                         <img name="headIcon" src="images/duck.png">
                     </div>
