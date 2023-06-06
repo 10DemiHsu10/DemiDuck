@@ -15,6 +15,11 @@ const store = createStore({
         ]
       }
     },
+    getters: {
+        getItemsByExpensive(state) {
+            return state.accountingItems.filter(item => item.amount > 1000)
+        }
+    },
     mutations: {
       increment (state) {
         state.count++

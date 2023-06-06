@@ -6,14 +6,17 @@ export default {
     ...mapState({
       count: 'count',
       items: 'accountingItems'
-    })
+    }),
+    getItemsByExpensive() {
+      return this.$store.getters.getItemsByExpensive;
+    }
   }
 }
 </script>
 
 <template>
   <div class="AccountingItem">
-    <div>{{ items[1].name }}</div>
+    <div>{{ getItemsByExpensive[0].name }}</div>
     <div>{{ count }}</div>
   </div>
   <div class="AccountingItem">
