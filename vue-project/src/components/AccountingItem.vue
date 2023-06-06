@@ -2,15 +2,18 @@
 import { mapState } from 'vuex';
 
 export default {
-  computed: mapState([
-    'count'
-  ])
+  computed: {
+    ...mapState({
+      count: state => state.count,
+      items: state => state.accountingItems
+    })
+  }
 }
 </script>
 
 <template>
   <div class="AccountingItem">
-    <div>雞腿便當</div>
+    <div>{{ items[1].name }}</div>
     <div>{{ count }}</div>
   </div>
   <div class="AccountingItem">

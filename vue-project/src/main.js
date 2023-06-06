@@ -7,7 +7,12 @@ import { createStore } from 'vuex';
 const store = createStore({
     state () {
       return {
-        count: 0
+        count: 0,
+        accountingItems: [
+            {"id": 1, "name": "雞腿便當", "amount": 85},
+            {"id": 2, "name": "QQ鮮奶茶", "amount": 65},
+            {"id": 3, "name": "油錢", "amount": 1105}
+        ]
       }
     },
     mutations: {
@@ -18,7 +23,7 @@ const store = createStore({
 })
 
 store.commit('increment');
-store.commit('increment');
+//store.commit('increment');
 // console.log(store.state.count)
 
 const app = createApp(App);
