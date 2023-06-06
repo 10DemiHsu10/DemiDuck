@@ -7,7 +7,7 @@ import { createStore } from 'vuex';
 const store = createStore({
     state () {
       return {
-        count: 0,
+        count: 2,
         accountingItems: [
             {"id": 1, "name": "雞腿便當", "amount": 85},
             {"id": 2, "name": "QQ鮮奶茶", "amount": 65},
