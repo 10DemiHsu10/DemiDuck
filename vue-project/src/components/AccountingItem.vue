@@ -8,7 +8,7 @@ export default {
       items: 'accountingItems'
     }),
     getItemsByExpensive() {
-      return this.$store.getters.getItemsByExpensive;
+      return this.$store.getters.getItemsByExpensive(60);
     }
   }
 }
@@ -16,7 +16,7 @@ export default {
 
 <template>
   <div class="AccountingItem">
-    <div>{{ getItemsByExpensive[0].name }}</div>
+    <div>{{ getItemsByExpensive[1].name }}</div>
     <div>{{ count }}</div>
   </div>
   <div class="AccountingItem">
