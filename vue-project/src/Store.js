@@ -27,6 +27,4 @@ const store = createStore({
     }
 })
 
-store.commit(INCREMENT);
-
 export default store;
